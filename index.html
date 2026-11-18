@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MUNDIS | El mundo en tus manos</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f5f7fb; color: #152238; }
+    header { background: #062b73; color: white; padding: 18px; }
+    .top { max-width: 1100px; margin: auto; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+    .brand { font-size: 28px; font-weight: bold; letter-spacing: 2px; }
+    input { flex: 1; min-width: 190px; padding: 13px; border-radius: 9px; border: 0; }
+    button { background: #ffd000; border: 0; border-radius: 9px; padding: 12px; font-weight: bold; cursor: pointer; }
+    nav { background: #fff; padding: 15px; text-align: center; }
+    nav button { margin: 4px; background: #edf2ff; }
+    .hero { background: linear-gradient(120deg,#062b73,#087cc7); color: white; padding: 45px 20px; text-align: center; }
+    .hero h1 { margin: 0 0 10px; }
+    main { max-width: 1100px; margin: auto; padding: 25px 15px; }
+    .products { display: grid; grid-template-columns: repeat(auto-fit,minmax(210px,1fr)); gap: 18px; }
+    .product { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 3px 12px #0001; text-align: center; }
+    .emoji { font-size: 65px; padding: 25px; background: #eef4ff; border-radius: 12px; }
+    .price { color: #062b73; font-size: 22px; font-weight: bold; }
+    .product button { width: 100%; }
+    #cart { background: white; padding: 20px; border-radius: 15px; margin-top: 25px; }
+    footer { text-align: center; padding: 25px; color: #667; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top">
+      <div class="brand">🌍 MUNDIS</div>
+      <input id="search" placeholder="Buscar productos..." oninput="render()">
+      <button onclick="document.getElementById('cart').scrollIntoView()">🛒 <span id="count">0</span></button>
+    </div>
+  </header>
 
+  <nav>
+    <button onclick="category='Todos';render()">Todos</button>
+    <button onclick="category='Tecnología';render()">Tecnología</button>
+    <button onclick="category='Hogar';render()">Hogar</button>
+    <button onclick="category='Moda';render()">Moda</button>
+    <button onclick="category='Mascotas';render()">Mascotas</button>
+  </nav>
+
+  <section class="hero">
+    <h1>Bienvenido a MUNDIS</h1>
+    <p>El mundo en tus manos.</p>
+    <p>Descubrí productos para cada momento.</p>
+  </section>
+
+  <main>
+    <h2>Productos destacados</h2>
+    <div class="products" id="products"></div>
+
+    <section id="cart">
+      <h2>🛒 Mi carrito</h2>
+      <div id="items">Tu carrito está vacío.</div>
+      <h3 id="total">Total: 0,00 €</h3>
+      <p>Versión de demostración. No se realizan pagos reales.</p>
+    </section>
+  </main>
+
+  <footer>© MUNDIS - El mundo en tus manos</footer>
+
+  <script>
+    const products = [
+      {id:1,name:"Auriculares inalámbricos",price:19.99,category:"Tecnología",icon:"🎧"},
+      {id:2,name:"Soporte para celular",price:9.99,category:"Tecnología",icon:"📱"},
+      {id:3,name:"Lámpara decorativa",price:24.99,category:"Hogar",icon:"💡"},
+      {id:4,name:"Organizador de escritorio",price:12.99,category:"Hogar",icon:"🗃️"},
+      {id:5,name:"Mochila urbana",price:29.99,category:"Moda",icon:"🎒"},
+      {id:6,name:"Reloj deportivo",price:22.99,category:"Moda",icon:"⌚"},
+      {id:7,name:"Juguete para mascotas",price:8.99,category:"Mascotas",icon:"🐾"},
+      {id:8,name:"Cama para mascotas",price:34.99,category:"Mascotas",icon:"🐶"}
+    ];
+
+    let category = "Todos";
+    let cart = [];
+
+    function money(value) {
+      return value.toLocaleString("es-ES",{style:"currency",currency:"EUR"});
+    }
+
+    function render() {
+      const search = document.getElementById("search").value.toLowerCase();
+      const filtered = products.filter(p =>
+        (category === "Todos" || p.category === category) &&
+        p.name.toLowerCase().includes(search)
+      );
+
+      document.getElementById("products").innerHTML = filtered.map(p => `
+        <article class="product">
+          <div class="emoji">${p.icon}</div>
+          <h3>${p.name}</h3>
+          <p>${p.category}</p>
+          <p class="price">${money(p.price)}</p>
+          <button onclick="add(${p.id})">Agregar al carrito</button>
+        </article>
+      `).join("") || "<p>No encontramos productos.</p>";
+
+      document.getElementById("items").innerHTML =
+        cart.length ? cart.map((id,index) => {
+          const p = products.find(x => x.id === id);
+          return `<p>${p.name} - ${money(p.price)}
+            <button onclick="removeItem(${index})">Quitar</button></p>`;
+        }).join("") : "Tu carrito está vacío.";
+
+      document.getElementById("total").textContent =
+        "Total: " + money(cart.reduce((sum,id) =>
+          sum + products.find(p => p.id === id).price,0));
+
+      document.getElementById("count").textContent = cart.length;
+    }
+
+    function add(id) {
+      cart.push(id);
+      render();
+    }
+
+    function removeItem(index) {
+      cart.splice(index,1);
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
